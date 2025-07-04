@@ -1,0 +1,42 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} | NH-Web</title>
+    </head>
+  <body class="bg-gray-100 font-sans antialiased text-gray-900">
+    <header class="bg-gray-800 text-white p-4 shadow-md">
+      <nav class="max-w-6xl mx-auto flex justify-between items-center">
+        <a href="/nh-web/" class="text-2xl font-bold hover:text-blue-400 transition-colors">NH-Web</a>
+        <ul class="flex space-x-6">
+          <li><a href="/nh-web/blogs" class="hover:text-blue-400 transition-colors">Blogs</a></li>
+          <li><a href="/nh-web/events" class="hover:text-blue-400 transition-colors">Events</a></li>
+          <li><a href="/nh-web/projects" class="hover:text-blue-400 transition-colors">Projects</a></li>
+          <li><a href="/nh-web/members" class="hover:text-blue-400 transition-colors">Members</a></li>
+          <li><a href="/nh-web/tags" class="hover:text-blue-400 transition-colors">Tags</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <slot /> {/* This is where the page content will be injected */}
+    </main>
+
+    <footer class="bg-gray-800 text-white p-6 text-center mt-12">
+      <div class="max-w-6xl mx-auto">
+        <p>&copy; {new Date().getFullYear()} NH-Web. All rights reserved.</p>
+        <p class="text-sm mt-2">Built with Astro and Tailwind CSS</p>
+      </div>
+    </footer>
+  </body>
+</html>
