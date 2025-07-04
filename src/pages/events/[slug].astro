@@ -1,0 +1,87 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, getEntryBySlug } from 'astro:content';
+
+export async function getStaticPaths() {
+  const eventEntries = await getCollection('events');
+  return eventEntries.map(entry => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+// Fetch contributor details if available
+const contributors = entry.data.contributorSlugs
+  ? await Promise.all(
+      entry.data.contributorSlugs.map(slug => getEntryBySlug('members', slug))
+    )
+  : [];
+const validContributors = contributors.filter(Boolean); // Filter out any undefined entries if slug doesn't match
+---
+
+<BaseLayout title={entry.data.name}>
+  <article class="max-w-4xl mx-auto p-4 md:p-8">
+    {entry.data.cover && (
+      <img
+        src={`/nh-web/images/events/${entry.slug}/${entry.data.cover}`}
+        alt={`Cover image for ${entry.data.name}`}
+        class="w-full h-96 object-cover rounded-lg mb-8 shadow-md"
+      />
+    )}
+    <h1 class="text-5xl font-extrabold text-gray-900 mb-4">{entry.data.name}</h1>
+
+    <div class="text-lg text-gray-700 mb-6 space-y-2">
+      <p><strong class="font-semibold">Date:</strong> {entry.data.date.toLocaleDateString('en-IN', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      })}</p>
+      <p><strong class="font-semibold">Time:</strong> {entry.data.time}</p>
+      <p><strong class="font-semibold">Location:</strong> {entry.data.location}</p>
+    </div>
+
+    {entry.data.links && Object.keys(entry.data.links).length > 0 && (
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-3">Important Links:</h3>
+        <div class="flex flex-wrap gap-4">
+          {Object.entries(entry.data.links).map(([key, url]) => (
+            <a href={url} target="_blank" rel="noopener noreferrer" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-colors capitalize">
+              {key.replace(/([A-Z])/g, ' $1')} {/* Makes "registration" -> "Registration" */}
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <div class="prose prose-lg max-w-none mb-10">
+      <Content /> {/* Renders the MDX content */}
+    </div>
+
+    {validContributors.length > 0 && (
+      <div class="mb-10">
+        <h3 class="text-xl font-semibold mb-3">Contributors:</h3>
+        <div class="flex flex-wrap gap-2">
+          {validContributors.map(member => (
+            <a href={`/nh-web/members/${member.slug}`} class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full hover:bg-green-200 transition-colors">
+              {member.data.name}
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {entry.data.tagSlugs && entry.data.tagSlugs.length > 0 && (
+      <div>
+        <h3 class="text-xl font-semibold mb-3">Related Tags:</h3>
+        <div class="flex flex-wrap gap-2">
+          {entry.data.tagSlugs.map(slug => (
+            <a href={`/nh-web/tags/${slug}`} class="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1 rounded-full hover:bg-purple-200 transition-colors">
+              {slug}
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </article>
+</BaseLayout>

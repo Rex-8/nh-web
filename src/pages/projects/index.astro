@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allProjects = await getCollection('projects');
+// Sort by start date, newest first
+allProjects.sort((a, b) => b.data.startDate.getTime() - a.data.startDate.getTime());
+---
+
+<BaseLayout title="Our Projects & Initiatives">
+  <h1 class="text-4xl font-bold text-center my-8">Our Stellar Projects</h1>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-4">
+    {allProjects.map((project) => (
+      <a href={`/nh-web/projects/${project.slug}`} class="block bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+        {project.data.cover && (
+          <img
+            src={`/nh-web/images/projects/${project.slug}/${project.data.cover}`}
+            alt={`Cover image for ${project.data.title}`}
+            class="w-full h-48 object-cover rounded-md mb-4"
+          />
+        )}
+        <h2 class="text-2xl font-semibold text-gray-900 mb-2">{project.data.title}</h2>
+        <p class="text-gray-600 mb-3">{project.data.description}</p>
+        <div class="flex justify-between items-center text-sm text-gray-500">
+          <span>Started: {project.data.startDate.toLocaleDateString('en-IN')}</span>
+          <span class="px-2 py-1 rounded-full text-xs font-semibold
+            {project.data.status === 'completed' ? 'bg-green-200 text-green-800' : ''}
+            {project.data.status === 'in-progress' ? 'bg-blue-200 text-blue-800' : ''}
+            {project.data.status === 'on-hold' ? 'bg-yellow-200 text-yellow-800' : ''}
+            {project.data.status === 'planned' ? 'bg-gray-200 text-gray-800' : ''}
+          capitalize">
+            {project.data.status}
+          </span>
+        </div>
+      </a>
+    ))}
+  </div>
+</BaseLayout>

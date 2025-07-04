@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const individualMembers = await getCollection('members');
+  const yearlyMemberLists = await getCollection('members_list');
+
+  // Combine paths from both collections
+  const paths = [
+    ...individualMembers.map(entry => ({
+      params: { slug: entry.slug },
+      props: { type: 'member', entry },
+    })),
+    ...yearlyMemberLists.map(entry => ({
+      params: { slug: entry.slug },
+      props: { type: 'members_list', entry },
+    })),
+  ];
+
+  return paths;
+}
+
+const { type, entry } = Astro.props;
+let Content;
+
+if (type === 'member') {
+  // For individual member profiles (m_0, m_1 etc.)
+  ({ Content } = await entry.render());
+} else if (type === 'members_list') {
+  // For yearly member lists (ml_2024, ml_2025 etc.)
+  ({ Content } = await entry.render());
+}
+---
+
+<BaseLayout title={type === 'member' ? entry.data.name : `NH-Web ${entry.data.year} Roster`}>
+  <div class="max-w-4xl mx-auto p-4 md:p-8">
+    {type === 'member' && (
+      // Display Individual Member Profile
+      <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+        {entry.data.avatarPath && (
+          <img
+            src={`/nh-web/images/members/${entry.slug}/${entry.data.avatarPath}`}
+            alt={`Avatar of ${entry.data.name}`}
+            class="w-32 h-32 object-cover rounded-full mx-auto mb-6 border-4 border-blue-500"
+          />
+        )}
+        <h1 class="text-5xl font-extrabold text-gray-900 mb-2">{entry.data.name}</h1>
+        {entry.data.joinYear && (
+          <p class="text-lg text-gray-600 mb-4">Joined NH-Web in {entry.data.joinYear}</p>
+        )}
+        <p class="text-xl text-gray-800 mb-6">{entry.data.shortBio}</p>
+
+        {(entry.data.githubLink || entry.data.linkedinLink || entry.data.websiteLink) && (
+          <div class="flex justify-center gap-4 text-2xl mb-8">
+            {entry.data.githubLink && (
+              <a href={entry.data.githubLink} target="_blank" rel="noopener noreferrer" class="text-gray-700 hover:text-gray-900 transition-colors">GitHub</a>
+            )}
+            {entry.data.linkedinLink && (
+              <a href={entry.data.linkedinLink} target="_blank" rel="noopener noreferrer" class="text-blue-700 hover:text-blue-900 transition-colors">LinkedIn</a>
+            )}
+            {entry.data.websiteLink && (
+              <a href={entry.data.websiteLink} target="_blank" rel="noopener noreferrer" class="text-purple-700 hover:text-purple-900 transition-colors">Website</a>
+            )}
+          </div>
+        )}
+        <div class="prose prose-lg max-w-none mx-auto text-left">
+          <Content /> {/* This renders the MDX body for the member */}
+        </div>
+      </div>
+    )}
+
+    {type === 'members_list' && (
+      // Display Yearly Member List Details
+      <div class="bg-white p-8 rounded-lg shadow-lg">
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-6">NH-Web Members of {entry.data.year}</h1>
+
+        <div class="prose prose-lg max-w-none mb-8">
+          <Content /> {/* This renders the MDX body for the members_list */}
+        </div>
+
+        {entry.data.head && (
+          <div class="mb-6">
+            <h2 class="text-3xl font-bold text-gray-800 mb-3">Head</h2>
+            <p class="text-xl text-gray-700">
+              <a href={`/nh-web/members/${entry.data.head.slug}`} class="text-blue-600 hover:underline">
+                {entry.data.head.name}
+              </a>
+            </p>
+          </div>
+        )}
+
+        {entry.data.coHead && entry.data.coHead.length > 0 && (
+          <div class="mb-6">
+            <h2 class="text-3xl font-bold text-gray-800 mb-3">Co-Head(s)</h2>
+            <ul class="list-disc list-inside text-xl text-gray-700">
+              {entry.data.coHead.map((co) => (
+                <li>
+                  <a href={`/nh-web/members/${co.slug}`} class="text-blue-600 hover:underline">
+                    {co.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {entry.data.members && entry.data.members.length > 0 && (
+          <div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-3">General Members</h2>
+            <ul class="list-disc list-inside text-xl text-gray-700">
+              {entry.data.members.map((member) => (
+                <li>
+                  <a href={`/nh-web/members/${member.slug}`} class="text-blue-600 hover:underline">
+                    {member.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+</BaseLayout>

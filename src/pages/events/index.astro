@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allEvents = await getCollection('events');
+// Sort events by date, newest first
+allEvents.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title="Upcoming & Past Events">
+  <h1 class="text-4xl font-bold text-center my-8">Our Celestial Events</h1>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-4">
+    {allEvents.map((event) => (
+      <a href={`/nh-web/events/${event.slug}`} class="block bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+        {event.data.cover && (
+          <img
+            src={`/nh-web/images/events/${event.slug}/${event.data.cover}`}
+            alt={`Cover image for ${event.data.name}`}
+            class="w-full h-48 object-cover rounded-md mb-4"
+          />
+        )}
+        <h2 class="text-2xl font-semibold text-gray-900 mb-2">{event.data.name}</h2>
+        <p class="text-gray-600 mb-2">{event.data.date.toLocaleDateString('en-IN', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        })} at {event.data.time}</p>
+        <p class="text-gray-500 text-sm">Location: {event.data.location}</p>
+        {event.data.tagSlugs && event.data.tagSlugs.length > 0 && (
+          <div class="flex flex-wrap gap-1 mt-3">
+            {event.data.tagSlugs.map(slug => (
+              <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded-full">{slug}</span>
+            ))}
+          </div>
+        )}
+      </a>
+    ))}
+  </div>
+</BaseLayout>

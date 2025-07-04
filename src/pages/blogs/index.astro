@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-const allBlogPosts = await getCollection('blogs');
+const allBlogPosts = await getCollection('blogs'); // Fetches from src/content/blogs
 // Sort by date, newest first
 allBlogPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 ---
@@ -27,6 +27,5 @@ allBlogPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
         </div>
       </a>
     ))}
-    <p>testing by re</p>
   </div>
 </BaseLayout>
