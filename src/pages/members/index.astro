@@ -18,12 +18,12 @@ allMembersLists.sort((a, b) => b.data.year - a.data.year);
         <h2 class="text-3xl font-bold text-gray-900 mb-2">Members of {list.data.year}</h2>
         {list.data.head && (
           <p class="text-lg text-gray-700 mb-1">
-            **Head:** <span class="font-semibold">{list.data.head.name}</span>
+            Head: <span class="font-semibold">{list.data.head.name}</span>
           </p>
         )}
         {list.data.coHead && list.data.coHead.length > 0 && (
           <p class="text-lg text-gray-700 mb-1">
-            **Co-Head(s):** {list.data.coHead.map(co => co.name).join(', ')}
+            Co-Head(s): {list.data.coHead.map(co => co.name).join(', ')}
           </p>
         )}
         <p class="text-gray-600 mt-4">Click to view the full roster and details for {list.data.year}.</p>

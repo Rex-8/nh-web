@@ -1,19 +1,15 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro'; // Import your BaseLayout component
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>NH-Web Astro Project</title>
-  </head>
-  <body>
-    <main class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 to-purple-900 text-white p-8">
-      <h1 class="text-6xl font-bold mb-4 text-center">Welcome to <span class="text-yellow-400">NH-Web</span></h1>
-      <p class="text-xl text-center mb-8">Your journey into the cosmos starts here.</p>
-      <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transform transition duration-300 hover:scale-105">
-        Explore Our Universe
-      </button>
+<BaseLayout title="Welcome to NH-Web">
+  <main class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 to-purple-900 text-white p-8">
+    <h1 class="text-6xl font-bold mb-4 text-center">Landing Page</h1>
+
+    <h1 class="text-6xl font-bold mb-4 text-center">Welcome to <span class="text-yellow-400">NH-Web</span></h1>
+    <p class="text-xl text-center mb-8">Your journey into the cosmos starts here.</p>
+    <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transform transition duration-300 hover:scale-105">
+      Explore Our Universe
+    </button>
     </main>
-  </body>
-</html>
+</BaseLayout>
