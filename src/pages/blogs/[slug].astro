@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { formatMemberSlugForDisplay } from '../../utils/formatMemberSlug.js';
 
 export async function getStaticPaths() {
   const blogEntries = await getCollection('blogs'); // Fetches from src/content/blogs
@@ -23,7 +24,7 @@ const { Content } = await entry.render(); // Render the MDX body
         class="w-full h-80 object-cover rounded-lg mb-8 shadow-md"
       />
     )}
-    <h1 class="text-5xl font-extrabold text-gray-900 mb-4">{entry.data.title}</h1>
+
     <p class="text-xl text-gray-700 mb-6">{entry.data.description}</p>
 
     <div class="flex items-center text-gray-500 text-sm mb-8">
@@ -33,19 +34,19 @@ const { Content } = await entry.render(); // Render the MDX body
       {entry.data.authorSlug && (
         <>
           <span class="mx-2">•</span>
-          <span>By <a href={`/nh-web/members/${entry.data.authorSlug}`} class="text-blue-600 hover:underline">{entry.data.authorSlug}</a></span>
+          <span>By <a href={`/nh-web/members/${entry.data.authorSlug}`} class="text-blue-600 hover:underline">{formatMemberSlugForDisplay(entry.data.authorSlug)}</a></span>
         </>
       )}
       {entry.data.coauthorSlugs && entry.data.coauthorSlugs.length > 0 && (
         <>
           <span class="mx-2">•</span>
           <span>Co-authored by {entry.data.coauthorSlugs.map(slug => (
-            <a href={`/nh-web/members/${slug}`} class="text-blue-600 hover:underline mx-0.5">{slug}</a>
+            <a href={`/nh-web/members/${slug}`} class="text-blue-600 hover:underline mx-0.5">{formatMemberSlugForDisplay(slug)}</a>
           )).reduce((prev, curr) => [prev, ', ', curr])}</span>
         </>
       )}
     </div>
-
+    <h1 class="text-5xl font-extrabold text-gray-900 mb-4">{entry.data.title}</h1>
     <div class="prose prose-lg max-w-none">
       <Content /> {/* This renders the MDX content */}
     </div>

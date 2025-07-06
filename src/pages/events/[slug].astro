@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection, getEntryBySlug } from 'astro:content';
+import { getCollection /* Removed getEntryBySlug */ } from 'astro:content'; // Ensure getEntryBySlug is NOT imported
+import { formatMemberSlugForDisplay } from '../../utils/formatMemberSlug.js'; // ADD THIS IMPORT
 
 export async function getStaticPaths() {
   const eventEntries = await getCollection('events');
@@ -13,13 +14,14 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await entry.render();
 
-// Fetch contributor details if available
-const contributors = entry.data.contributorSlugs
-  ? await Promise.all(
-      entry.data.contributorSlugs.map(slug => getEntryBySlug('members', slug))
-    )
-  : [];
-const validContributors = contributors.filter(Boolean); // Filter out any undefined entries if slug doesn't match
+// --- THIS ENTIRE BLOCK IS REMOVED as per the "blog method" ---
+// const contributors = entry.data.contributorSlugs
+//    ? await Promise.all(
+//        entry.data.contributorSlugs.map(slug => getEntryBySlug('members', slug))
+//      )
+//    : [];
+// const validContributors = contributors.filter(Boolean);
+// -----------------------------------------------------------------
 ---
 
 <BaseLayout title={entry.data.name}>
@@ -47,7 +49,7 @@ const validContributors = contributors.filter(Boolean); // Filter out any undefi
         <div class="flex flex-wrap gap-4">
           {Object.entries(entry.data.links).map(([key, url]) => (
             <a href={url} target="_blank" rel="noopener noreferrer" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-colors capitalize">
-              {key.replace(/([A-Z])/g, ' $1')} {/* Makes "registration" -> "Registration" */}
+              {key.replace(/([A-Z])/g, ' $1')}
             </a>
           ))}
         </div>
@@ -55,16 +57,16 @@ const validContributors = contributors.filter(Boolean); // Filter out any undefi
     )}
 
     <div class="prose prose-lg max-w-none mb-10">
-      <Content /> {/* Renders the MDX content */}
+      <Content />
     </div>
 
-    {validContributors.length > 0 && (
+    {entry.data.contributorSlugs && entry.data.contributorSlugs.length > 0 && (
       <div class="mb-10">
         <h3 class="text-xl font-semibold mb-3">Contributors:</h3>
         <div class="flex flex-wrap gap-2">
-          {validContributors.map(member => (
-            <a href={`/nh-web/members/${member.slug}`} class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full hover:bg-green-200 transition-colors">
-              {member.data.name}
+          {entry.data.contributorSlugs.map(slug => ( // Map directly over the slugs from frontmatter
+            <a href={`/nh-web/members/${slug}`} class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full hover:bg-green-200 transition-colors">
+              {formatMemberSlugForDisplay(slug)} {/* Apply the formatting function here */}
             </a>
           ))}
         </div>

@@ -15,7 +15,7 @@ allBlogPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
         {post.data.cover && (
           <img
             src={`/nh-web/images/blogs/${post.slug}/${post.data.cover}`}
-            alt={`Cover image for ${post.data.title}`}
+            alt={`{Cover image for ${post.data.title}}`}
             class="w-full h-48 object-cover rounded-md mb-4"
           />
         )}
