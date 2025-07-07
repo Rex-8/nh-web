@@ -2,30 +2,118 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-const allBlogPosts = await getCollection('blogs'); // Fetches from src/content/blogs
-// Sort by date, newest first
+// 1. Fetch all blog posts at build time (server-side)
+const allBlogPosts = await getCollection('blogs');
+// Sort by date, newest first (this initial sort applies to the full list)
 allBlogPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+// 2. Serialize all blog posts data to a JSON string.
+// This data will be passed safely into the client-side script in the HTML.
+const postsJson = JSON.stringify(allBlogPosts);
 ---
 
 <BaseLayout title="All Our Blog Posts">
   <h1 class="text-4xl font-bold text-center my-8">Our Cosmic Blog</h1>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-4">
-    {allBlogPosts.map((post) => (
-      <a href={`/nh-web/blogs/${post.slug}`} class="block bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-        {post.data.cover && (
-          <img
-            src={`/nh-web/images/blogs/${post.slug}/${post.data.cover}`}
-            alt={`{Cover image for ${post.data.title}}`}
-            class="w-full h-48 object-cover rounded-md mb-4"
-          />
-        )}
-        <h2 class="text-2xl font-semibold text-gray-900 mb-2">{post.data.title}</h2>
-        <p class="text-gray-600 mb-4">{post.data.description}</p>
-        <div class="flex justify-between items-center text-sm text-gray-500">
-          <span>{post.data.date.toLocaleDateString('en-IN')}</span>
-          <span>{post.data.readtime}</span>
-        </div>
-      </a>
-    ))}
+
+  <div class="max-w-6xl mx-auto p-4 mb-8">
+    <h2 class="text-2xl font-bold text-center mb-4">Explore by Tags</h2>
+    <div id="tag-filter-container" class="flex flex-wrap justify-center gap-2 mb-8">
+      </div>
+
+    <div id="blog-posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      </div>
   </div>
+
+  <script define:vars={{ postsJson }} is:inline>
+    // --- Utility Functions (defined inline for this simple script) ---
+    function getAllUniqueTags(blogPosts) {
+      const tags = new Set();
+      blogPosts.forEach(post => {
+        if (post.data.tagSlugs) {
+          post.data.tagSlugs.forEach(tag => tags.add(tag));
+        }
+      });
+      return Array.from(tags).sort();
+    }
+
+    function filterBlogsByTag(blogPosts, tag) {
+      if (!tag || tag === 'all') { // 'all' is our special tag for no filter
+        return blogPosts;
+      }
+      return blogPosts.filter(post => post.data.tagSlugs && post.data.tagSlugs.includes(tag));
+    }
+
+    function getUniqueTagsFromFilteredPosts(filteredPosts) {
+      return getAllUniqueTags(filteredPosts);
+    }
+    // --- End Utility Functions ---
+
+    // Parse the full blog posts data that was passed from Astro's build process
+    const allBlogs = JSON.parse(postsJson);
+
+    // This function renders the tag buttons and blog posts based on the URL's tag parameter
+    function renderContent() {
+      // Get the current 'tag' from the URL query parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const selectedTag = urlParams.get('tag') || 'all'; // Default to 'all' if no tag is specified
+
+      // 1. Filter the blogs based on the selected tag
+      const currentFilteredBlogs = filterBlogsByTag(allBlogs, selectedTag);
+
+      // 2. Get the unique tags from the *currently filtered* blogs
+      const currentDisplayTags = getUniqueTagsFromFilteredPosts(currentFilteredBlogs);
+
+      // 3. Render the tag buttons
+      const tagContainer = document.getElementById('tag-filter-container');
+      let tagButtonsHtml = `
+        <a href="/nh-web/blogs" class="px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+          selectedTag === 'all'
+            ? 'bg-blue-600 text-white' // Active state for 'All Blogs' button
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300' // Default state
+        }">
+          All Blogs
+        </a>
+      `;
+      currentDisplayTags.forEach(tag => {
+        // Generate links that navigate to /nh-web/blogs?tag=<tag_name>
+        tagButtonsHtml += `
+          <a href="/nh-web/blogs?tag=${tag}" class="px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+            selectedTag === tag
+              ? 'bg-blue-600 text-white' // Active state for selected tag button
+              : 'bg-blue-100 text-blue-800 hover:bg-blue-200' // Default state
+          }">
+            ${tag}
+          </a>
+        `;
+      });
+      tagContainer.innerHTML = tagButtonsHtml;
+
+      // 4. Render the filtered blog posts
+      const blogPostsContainer = document.getElementById('blog-posts-container');
+      if (currentFilteredBlogs.length === 0) {
+        blogPostsContainer.innerHTML = '<p class="col-span-full text-center text-gray-600 text-lg">No blogs found for the selected tag.</p>';
+      } else {
+        blogPostsContainer.innerHTML = currentFilteredBlogs.map(post => {
+          // Construct the image HTML if a cover exists
+          const coverImageHtml = post.data.cover
+            ? `<img src="/nh-web/images/blogs/${post.slug}/${post.data.cover}" alt="Cover image for ${post.data.title}" class="w-full h-48 object-cover rounded-md mb-4" />`
+            : '';
+          return `
+            <a href="/nh-web/blogs/${post.slug}" class="block bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+              ${coverImageHtml}
+              <h2 class="text-2xl font-semibold text-gray-900 mb-2">${post.data.title}</h2>
+              <p class="text-gray-600 mb-4">${post.data.description}</p>
+              <div class="flex justify-between items-center text-sm text-gray-500">
+                <span>${new Date(post.data.date).toLocaleDateString('en-IN')}</span>
+                <span>${post.data.readtime}</span>
+              </div>
+            </a>
+          `;
+        }).join(''); // .join('') is crucial to concatenate array elements into a single string
+      }
+    }
+
+    // Run the rendering function once the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', renderContent);
+  </script>
 </BaseLayout>
