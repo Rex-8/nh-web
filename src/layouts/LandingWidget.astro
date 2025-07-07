@@ -1,0 +1,20 @@
+---
+// src/layouts/LandingWidget.astro
+// This component represents the first full-screen section of the landing page.
+// It does NOT include any global HTML structure (<html>, <head>, <body>)
+// and specifically does NOT include the main site navigation bar.
+---
+<section class="min-h-screen flex items-center p-8" style="background-color: #0C2948;">
+  <div class="max-w-4xl mx-auto text-left text-white">
+    <h1 class="text-6xl font-bold mb-4" style="color: #FFBF00;">Neural Hive</h1>
+    <p class="text-xl mb-8" style="color: #E6D8C7;">
+      A community dedicated to Artificial Intelligence, Machine Learning, and Deep Learning for PES University EC Campus.
+    </p>
+    <nav class="flex space-x-8 text-lg font-semibold">
+      <a href="/nh-web/about" class="hover:underline" style="color: #F8F3EA;">About</a>
+      <a href="/nh-web/blogs" class="hover:underline" style="color: #F8F3EA;">Blogs</a>
+      <a href="/nh-web/events" class="hover:underline" style="color: #F8F3EA;">Events</a>
+      <a href="/nh-web/projects" class="hover:underline" style="color: #F8F3EA;">Projects</a>
+    </nav>
+  </div>
+</section>
