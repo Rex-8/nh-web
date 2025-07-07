@@ -50,9 +50,13 @@
         </a>
       `;
       currentDisplayTags.forEach(tag => {
-        // Generate links that navigate to /nh-web/blogs?tag=<tag_name>
+        // Determine the target URL for this tag button
+        // If this tag is currently selected, clicking it should deselect it (go to '/nh-web/blogs')
+        // Otherwise, it should apply the filter (go to '/nh-web/blogs?tag=<tag_name>')
+        const tagLinkHref = (selectedTag === tag) ? '/nh-web/blogs' : `/nh-web/blogs?tag=${tag}`;
+
         tagButtonsHtml += `
-          <a href="/nh-web/blogs?tag=${tag}" class="px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+          <a href="${tagLinkHref}" class="px-4 py-2 rounded-full text-sm font-medium transition-colors ${
             selectedTag === tag
               ? 'bg-blue-600 text-white' // Active state for selected tag button
               : 'bg-blue-100 text-blue-800 hover:bg-blue-200' // Default state
