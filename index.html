@@ -1,3 +1,43 @@
-<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Welcome to NH-Web | NH-Web</title><link rel="stylesheet" href="/nh-web/_astro/_slug_.QQfQNzDL.css"></head> <body class="bg-gray-100 font-sans antialiased text-gray-900"> <header class="bg-gray-800 text-white p-4 shadow-md"> <nav class="max-w-6xl mx-auto flex justify-between items-center"> <a href="/nh-web/" class="text-2xl font-bold hover:text-blue-400 transition-colors">NH-Web</a> <ul class="flex space-x-6"> <li><a href="/nh-web/blogs" class="hover:text-blue-400 transition-colors">Blogs</a></li> <li><a href="/nh-web/events" class="hover:text-blue-400 transition-colors">Events</a></li> <li><a href="/nh-web/projects" class="hover:text-blue-400 transition-colors">Projects</a></li> <li><a href="/nh-web/members" class="hover:text-blue-400 transition-colors">Members</a></li> <li><a href="/nh-web/tags" class="hover:text-blue-400 transition-colors">Tags</a></li> </ul> </nav> </header> <main>  <main class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 to-purple-900 text-white p-8"> <h1 class="text-6xl font-bold mb-4 text-center">Landing Page</h1> <h1 class="text-6xl font-bold mb-4 text-center">Welcome to <span class="text-yellow-400">NH-Web</span></h1> <p class="text-xl text-center mb-8">Your journey into the cosmos starts here.</p> <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transform transition duration-300 hover:scale-105">
-Explore Our Universe
-</button> </main>   </main> <footer class="bg-gray-800 text-white p-6 text-center mt-12"> <div class="max-w-6xl mx-auto"> <p>&copy; 2025 NH-Web. All rights reserved.</p> <p class="text-sm mt-2">Built with Astro and Tailwind CSS</p> </div> </footer> </body></html>
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Welcome to NH-Web | NH-Web</title><link rel="stylesheet" href="/nh-web/_astro/_slug_.lv3h8u0p.css"></head> <body class="bg-gray-100 font-sans antialiased text-gray-900"> <section class="min-h-screen flex items-center p-8" style="background-color: #0C2948;"> <div class="max-w-4xl mx-auto text-left text-white"> <h1 class="text-6xl font-bold mb-4" style="color: #FFBF00;">Neural Hive</h1> <p class="text-xl mb-8" style="color: #E6D8C7;">
+A community dedicated to Artificial Intelligence, Machine Learning, and Deep Learning for PES University EC Campus.
+</p> <nav class="flex space-x-8 text-lg font-semibold"> <a href="/nh-web/about" class="hover:underline" style="color: #F8F3EA;">About</a> <a href="/nh-web/blogs" class="hover:underline" style="color: #F8F3EA;">Blogs</a> <a href="/nh-web/events" class="hover:underline" style="color: #F8F3EA;">Events</a> <a href="/nh-web/projects" class="hover:underline" style="color: #F8F3EA;">Projects</a> </nav> </div> </section> 
+  <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-transform duration-500 -translate-y-full" style="background-color: #0C2948; color: #F8F3EA; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+    <nav class="max-w-6xl mx-auto flex justify-between items-center p-4">
+      <a href="/nh-web/" class="text-2xl font-bold hover:text-blue-400 transition-colors" style="color: #FFBF00;">NH-Web</a>
+      <ul class="flex space-x-6">
+        <li><a href="/nh-web/blogs" class="hover:text-blue-400 transition-colors">Blogs</a></li>
+        <li><a href="/nh-web/events" class="hover:text-blue-400 transition-colors">Events</a></li>
+        <li><a href="/nh-web/projects" class="hover:text-blue-400 transition-colors">Projects</a></li>
+        <li><a href="/nh-web/members" class="hover:text-blue-400 transition-colors">Members</a></li>
+        <li><a href="/nh-web/tags" class="hover:text-blue-400 transition-colors">Tags</a></li>
+      </ul>
+    </nav>
+  </header>
+ <main> <section class="min-h-screen flex flex-col justify-center items-center p-8" style="background-color: #F8F3EA;"> <h1 class="text-5xl font-bold" style="color: #0C2948;">Blogs</h1> <div class="max-w-6xl mx-auto p-4 text-center" style="color: #0C2948;"> <p class="text-lg mt-4">This is a placeholder for your blog posts section.</p> <a href="/nh-web/blogs" class="inline-block mt-6 py-3 px-6 rounded-lg shadow-lg transform transition duration-300 hover:scale-105 font-semibold" style="background-color: #A4B5C4; color: #0C2948;">
+Visit Blogs Page
+</a> </div> </section> </main> 
+  <footer class="bg-gray-800 text-white p-6 text-center mt-12" style="background-color: #0C2948; color: #F8F3EA;">
+    <div class="max-w-6xl mx-auto">
+      <p>&copy; 2025 NH-Web. All rights reserved.</p>
+      <p class="text-sm mt-2">Built with Astro and Tailwind CSS</p>
+    </div>
+  </footer>
+ <script>
+      const header = document.getElementById('main-header');
+      let hasScrolledPastFirstSection = false;
+
+      window.addEventListener('scroll', () => {
+        const firstSectionHeight = window.innerHeight; // Height of the first "slide"
+
+        // If scrolled past the first section and the header is not yet visible
+        if (window.scrollY >= firstSectionHeight && !hasScrolledPastFirstSection) {
+          header.classList.remove('-translate-y-full'); // Slide header down
+          hasScrolledPastFirstSection = true;
+        }
+        // If scrolled back into the first section and the header is visible
+        else if (window.scrollY < firstSectionHeight && hasScrolledPastFirstSection) {
+          header.classList.add('-translate-y-full'); // Slide header up (hide)
+          hasScrolledPastFirstSection = false;
+        }
+      });
+    </script> </body> </html>
