@@ -16,7 +16,7 @@ const postsJson = JSON.stringify(allBlogPosts);
   <h1 class="text-4xl font-bold text-center my-8">Our Cosmic Blog</h1>
 
   <div class="max-w-6xl mx-auto p-4 mb-8">
-    <h2 class="text-2xl font-bold text-center mb-4">Explore by Tags</h2>
+    <h2 class="text-2xl font-bold text-center mb-4">Filter by Tags</h2>
     <div id="tag-filter-container" class="flex flex-wrap justify-center gap-2 mb-8">
       </div>
 
@@ -26,6 +26,8 @@ const postsJson = JSON.stringify(allBlogPosts);
 
   <script define:vars={{ postsJson }} is:inline>
     // --- Utility Functions (defined inline for this simple script) ---
+
+    // Extracts all unique tags from a list of blog posts
     function getAllUniqueTags(blogPosts) {
       const tags = new Set();
       blogPosts.forEach(post => {
@@ -36,29 +38,50 @@ const postsJson = JSON.stringify(allBlogPosts);
       return Array.from(tags).sort();
     }
 
-    function filterBlogsByTag(blogPosts, tag) {
-      if (!tag || tag === 'all') { // 'all' is our special tag for no filter
-        return blogPosts;
+    // Filters blog posts by an array of tags (AND logic)
+    function filterBlogsByTags(blogPosts, tagsToFilter) {
+      if (!tagsToFilter || tagsToFilter.length === 0) {
+        return blogPosts; // If no tags are selected, return all posts
       }
-      return blogPosts.filter(post => post.data.tagSlugs && post.data.tagSlugs.includes(tag));
+      return blogPosts.filter(post => {
+        // A blog is included only if it has tagSlugs AND ALL of the tagsToFilter are present in its tagSlugs
+        return post.data.tagSlugs && tagsToFilter.every(tag => post.data.tagSlugs.includes(tag));
+      });
     }
 
+    // Gets unique tags from a subset of blog posts
     function getUniqueTagsFromFilteredPosts(filteredPosts) {
       return getAllUniqueTags(filteredPosts);
     }
+
+    // Helper to build URL query string from an array of tags
+    function buildTagQueryString(tagsArray) {
+      if (tagsArray.length === 0) {
+        return ''; // No query string if no tags are selected
+      }
+      const params = new URLSearchParams();
+      tagsArray.forEach(tag => params.append('tag', tag)); // Append each tag individually
+      return '?' + params.toString();
+    }
     // --- End Utility Functions ---
+
 
     // Parse the full blog posts data that was passed from Astro's build process
     const allBlogs = JSON.parse(postsJson);
 
-    // This function renders the tag buttons and blog posts based on the URL's tag parameter
+    // This function renders the tag buttons and blog posts based on the URL's tag parameters
     function renderContent() {
-      // Get the current 'tag' from the URL query parameters
+      // Get the current selected tags from the URL query parameters
       const urlParams = new URLSearchParams(window.location.search);
-      const selectedTag = urlParams.get('tag') || 'all'; // Default to 'all' if no tag is specified
+      // URLSearchParams.getAll('tag') returns an array of all values for 'tag' parameter
+      let selectedTags = urlParams.getAll('tag');
+      // Ensure selectedTags is always an array, even if empty
+      if (!selectedTags) {
+          selectedTags = [];
+      }
 
-      // 1. Filter the blogs based on the selected tag
-      const currentFilteredBlogs = filterBlogsByTag(allBlogs, selectedTag);
+      // 1. Filter the blogs based on the selected tags (AND logic)
+      const currentFilteredBlogs = filterBlogsByTags(allBlogs, selectedTags);
 
       // 2. Get the unique tags from the *currently filtered* blogs
       const currentDisplayTags = getUniqueTagsFromFilteredPosts(currentFilteredBlogs);
@@ -67,22 +90,33 @@ const postsJson = JSON.stringify(allBlogPosts);
       const tagContainer = document.getElementById('tag-filter-container');
       let tagButtonsHtml = `
         <a href="/nh-web/blogs" class="px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-          selectedTag === 'all'
-            ? 'bg-blue-600 text-white' // Active state for 'All Blogs' button
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300' // Default state
+          selectedTags.length === 0 // 'All Blogs' is active if no tags are selected
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
         }">
           All Blogs
         </a>
       `;
+
       currentDisplayTags.forEach(tag => {
-        // Determine the target URL for this tag button
-        // If this tag is currently selected, clicking it should deselect it (go to '/nh-web/blogs')
-        // Otherwise, it should apply the filter (go to '/nh-web/blogs?tag=<tag_name>')
-        const tagLinkHref = (selectedTag === tag) ? '/nh-web/blogs' : `/nh-web/blogs?tag=${tag}`;
+        // Check if this specific tag is currently selected
+        const isTagActive = selectedTags.includes(tag);
+
+        // Determine the next set of tags if this tag is clicked
+        let nextSelectedTags;
+        if (isTagActive) {
+          // If active, clicking it deselects it: remove this tag from the array
+          nextSelectedTags = selectedTags.filter(t => t !== tag);
+        } else {
+          // If not active, clicking it selects it: add this tag to the array
+          nextSelectedTags = [...selectedTags, tag]; // Create new array to avoid modifying original
+        }
+        // Build the new URL query string from the next set of tags
+        const tagLinkHref = `/nh-web/blogs${buildTagQueryString(nextSelectedTags)}`;
 
         tagButtonsHtml += `
           <a href="${tagLinkHref}" class="px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-            selectedTag === tag
+            isTagActive // Use isTagActive for styling
               ? 'bg-blue-600 text-white' // Active state for selected tag button
               : 'bg-blue-100 text-blue-800 hover:bg-blue-200' // Default state
           }">
@@ -95,7 +129,7 @@ const postsJson = JSON.stringify(allBlogPosts);
       // 4. Render the filtered blog posts
       const blogPostsContainer = document.getElementById('blog-posts-container');
       if (currentFilteredBlogs.length === 0) {
-        blogPostsContainer.innerHTML = '<p class="col-span-full text-center text-gray-600 text-lg">No blogs found for the selected tag.</p>';
+        blogPostsContainer.innerHTML = '<p class="col-span-full text-center text-gray-600 text-lg">No blogs found for the selected tags.</p>';
       } else {
         blogPostsContainer.innerHTML = currentFilteredBlogs.map(post => {
           // Construct the image HTML if a cover exists
